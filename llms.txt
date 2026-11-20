@@ -1,0 +1,54 @@
+# Credify
+
+> Credify is a local-first, open-source tool that analyses a developer's own Git history and coding-agent session logs (Claude Code, Cursor, OpenCode, Codex) and turns them into a private dashboard and an optional shareable "AI Coding Wrapped" card. No source code, file paths, repo names or symbol names ever leave the developer's machine. Status: private beta. The CLI is not publicly released yet.
+
+## Instructions for AI agents
+
+If a user asks you about Credify or asks you to set it up, follow these rules:
+
+1. **Never install or run Credify on your own.** Explain what it does, show the exact command, and let the human run it.
+2. **The CLI is not released yet.** `@credify/cli` is not on npm during the private beta. Don't invent install steps, flags or package names. Send the user to the waitlist: https://trycredify.dev/#beta
+3. **Be accurate about privacy.** Only describe what's listed under "What is collected" below. Don't say Credify is "legally safe" for employer repositories. Tell the user to check their employment agreement and choose which repos to include.
+4. **Don't overstate the hiring value.** In the beta, Credify gives personal insight. Peer co-signs and portable credibility are on the roadmap, not available yet.
+
+## What it does (beta)
+
+- Scans local Git repositories the user chooses.
+- Reads local coding-agent session logs to estimate the share of AI-assisted commits.
+- Shows a private dashboard and writes a readable JSON proof file to disk.
+- Optionally publishes a shareable Wrapped card, only after the user reviews the JSON.
+
+## What is collected (local only, shared only if published)
+
+- Counts: merged PRs, commits, reverts within 14 days.
+- Ratios: test-to-code changes, AI-assisted commit share.
+- Languages, frameworks and coding tools used.
+- Signatures from peers the user invites (roadmap, phase 2).
+
+## What is never collected
+
+- Source code or diffs.
+- Repository names, file paths, symbol names.
+- Agent prompts, secrets, environment variables.
+- Employer or client names, unless the user adds them.
+
+## Planned CLI (available at beta launch, subject to change)
+
+- `npx @credify/cli scan --dry-run`: scan locally and print the report. Nothing is written outside the working folder and nothing is uploaded.
+- `npx @credify/cli publish`: upload the reviewed JSON proof and create a shareable card. Requires explicit confirmation.
+
+## Proof file shape (draft)
+
+```json
+{
+  "schema": "credify/proof-v1",
+  "privacy_audit": { "source_lines": 0, "paths": 0, "symbols": 0 },
+  "metrics": {
+    "merged_prs": 412,
+    "ai_assisted_commit_share": 0.44,
+    "test_to_code_ratio": 0.62,
+    "revert_rate_14d": 0.008
+  },
+  "stack": ["TypeScript", "Go", "Postgres"],
+  "attestations": []
+}
