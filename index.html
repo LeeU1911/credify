@@ -1,57 +1,253 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Credify - Build Your Credibility for Life</title>
-    <style>
-        /* Add your CSS styling here */
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Credify — See how you actually ship with AI</title>
+<meta name="description" content="Credify runs locally on your Git history and coding-agent sessions to show how you really ship with AI. No code leaves your machine. Open-source collector. Join the beta." />
+<link rel="alternate" type="text/plain" href="/llms.txt" title="LLM-readable summary" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :root {
+    --bg: #080a0f; --panel: #0d1119; --panel-2: #06080c; --line: #1e2532;
+    --text: #e6edf3; --muted: #9ba3b4; --dim: #6e7787;
+    --green: #22c55e; --green-soft: #4ade80; --cyan: #38bdf8; --amber: #fbbf24;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+  html, body { margin: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif; line-height: 1.55; }
+  a { color: var(--cyan); }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 24px 20px 64px; }
+  .mono { font-family: var(--mono); }
 
-        .container {
-            margin: 100px auto;
-            max-width: 600px;
-        }
+  nav { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+    padding-bottom: 16px; border-bottom: 1px solid var(--line); margin-bottom: 48px; }
+  .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 1.1rem; letter-spacing: -0.02em; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px rgba(34,197,94,.7); }
+  .nav-links { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; font-size: .85rem; }
+  .nav-links a { color: var(--muted); text-decoration: none; }
+  .nav-links a:hover { color: var(--text); }
 
-        h1 {
-            font-size: 36px;
-        }
+  .badge { display: inline-block; font-family: var(--mono); font-size: .75rem; padding: 4px 10px; border-radius: 6px;
+    background: #101914; border: 1px solid #1e3a28; color: var(--green-soft); margin-bottom: 16px; }
+  h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.1; letter-spacing: -0.035em; margin: 0 0 16px; }
+  h1 span { color: var(--green-soft); }
+  .lead { color: var(--muted); font-size: 1.1rem; max-width: 62ch; margin: 0 0 28px; }
+  h2 { font-size: 1.35rem; letter-spacing: -0.02em; margin: 0 0 8px; }
+  .section { margin-top: 64px; }
+  .section-sub { color: var(--muted); margin: 0 0 20px; max-width: 62ch; }
 
-        p {
-            font-size: 20px;
-        }
+  .cta-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
+  .btn { font-family: var(--mono); font-size: .9rem; font-weight: 700; border-radius: 8px; padding: 11px 18px;
+    cursor: pointer; text-decoration: none; display: inline-block; border: 1px solid transparent; }
+  .btn-primary { background: var(--green); color: #05140a; }
+  .btn-primary:hover { background: var(--green-soft); }
+  .btn-ghost { background: #131924; color: var(--text); border-color: #283244; }
+  .btn-ghost:hover { background: #1a2231; }
 
-        .benefits {
-            text-align: left;
-            margin-top: 30px;
-        }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .tabs { display: flex; gap: 4px; padding: 6px 8px 0; background: #0a0d14; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .tab { background: none; border: none; border-bottom: 2px solid transparent; color: var(--muted); font-family: var(--mono);
+    font-size: .8rem; padding: 8px 12px; cursor: pointer; border-radius: 6px 6px 0 0; }
+  .tab[aria-selected="true"] { color: #fff; background: #121826; border-bottom-color: var(--green); }
+  .card-body { padding: 14px; }
+  .cmd { display: flex; gap: 10px; align-items: center; background: var(--panel-2); border: 1px solid var(--line);
+    border-radius: 8px; padding: 10px 12px; }
+  .cmd pre { margin: 0; flex: 1; overflow-x: auto; white-space: pre-wrap; word-break: break-word;
+    font-family: var(--mono); font-size: .82rem; }
+  .copy { font-family: var(--mono); font-size: .75rem; font-weight: 600; background: #182232; color: var(--text);
+    border: 1px solid #2b384e; border-radius: 6px; padding: 6px 10px; cursor: pointer; flex-shrink: 0; }
+  .copy.ok { background: #143321; border-color: var(--green); color: var(--green-soft); }
+  .hint { color: var(--dim); font-size: .8rem; margin: 10px 0 0; }
 
-        .benefits ul {
-            list-style-type: disc;
-        }
+  .wrapped { background: linear-gradient(135deg, #0f1a14 0%, #0b0f17 55%, #101427 100%);
+    border: 1px solid #263145; border-radius: 14px; padding: 22px; position: relative; }
+  .sample { position: absolute; top: 14px; right: 14px; font-family: var(--mono); font-size: .7rem; color: var(--amber);
+    border: 1px solid #4a3a12; background: #1c1608; padding: 3px 8px; border-radius: 999px; }
+  .wrapped-title { font-family: var(--mono); font-size: .8rem; color: var(--green-soft); margin-bottom: 4px; }
+  .wrapped-name { font-weight: 700; font-size: 1.15rem; margin-bottom: 18px; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  @media (max-width: 640px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+  .stat { background: rgba(6,8,12,.7); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+  .stat-val { font-family: var(--mono); font-size: 1.4rem; font-weight: 700; }
+  .stat-lbl { color: var(--muted); font-size: .78rem; }
+  .stack { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { font-family: var(--mono); font-size: .72rem; padding: 3px 9px; border-radius: 999px; background: #121826;
+    border: 1px solid #263145; color: #cbd5e1; }
 
-        img {
-            max-width: 100%;
-            margin-top: 30px;
-        }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
+  .box { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .box h3 { margin: 0 0 10px; font-family: var(--mono); font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; }
+  .red { color: #f87171; } .grn { color: var(--green-soft); }
+  .box ul { list-style: none; margin: 0; padding: 0; color: #b4bdce; font-size: .9rem; }
+  .box li { padding: 4px 0; }
 
-        /* Customize your styles as needed */
-    </style>
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  @media (max-width: 640px) { .steps { grid-template-columns: 1fr; } }
+  .step { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .step-n { font-family: var(--mono); font-size: .75rem; color: var(--dim); }
+  .step-t { font-weight: 650; margin: 4px 0 6px; }
+  .step p { margin: 0; color: var(--muted); font-size: .88rem; }
+  .now { color: var(--green-soft); }
+
+  details { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; margin-bottom: 10px; }
+  summary { cursor: pointer; font-weight: 600; }
+  details p { color: var(--muted); margin: 10px 0 0; font-size: .92rem; }
+
+  .waitlist iframe { width: 100%; height: 533px; border: 1px solid var(--line); border-radius: 12px; background: transparent; }
+  footer { margin-top: 64px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--dim); font-size: .8rem;
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>Build Your Credibility for Life</h1>
-        <p>Say goodbye to repeated interviews and secure your professional future.</p>
-<iframe class="airtable-embed" src="https://airtable.com/embed/app5xrakkyjlqMudb/shrnUR28R8ynGtdqQ?backgroundColor=red" frameborder="0" onmousewheel="" width="100%" height="533" style="background: transparent; border: 1px solid #ccc;"></iframe>        <div class="benefits">
-            <h2>Benefits of Using Our Product:</h2>
-            <ul>
-                <li>Build work credibility once: Whether public or private, your work speaks for itself.</li>
-                <li>No more repeated interviews: Once built, your credibility at work can be used to apply for new jobs easily, just like athletes.</li>
-                <li>Being trusted right from the beginning: No longer "that new senior guy," but rather "the expert who's been there and done that."</li>
-            </ul>
-        </div>
-        <img src="your-image-url" alt="Product Image">
+<div class="wrap">
+
+  <nav>
+    <div class="brand"><span class="dot"></span>credify</div>
+    <div class="nav-links">
+      <a href="#wrapped">Wrapped</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="/llms.txt" class="mono">llms.txt</a>
+      <a href="#beta" class="btn btn-primary" style="padding:7px 12px;font-size:.8rem;">Join beta</a>
     </div>
+  </nav>
+
+  <header>
+    <div class="badge">Private beta · Open-source local collector</div>
+    <h1>See how you actually<br /><span>ship with AI.</span></h1>
+    <p class="lead">
+      Credify runs on your machine over your Git history and coding-agent sessions (Claude Code, Cursor, OpenCode, Codex)
+      and shows you what you really ship. No code, paths or names leave your laptop.
+      Later, it becomes credibility that travels with you from job to job.
+    </p>
+    <div class="cta-row">
+      <a href="#beta" class="btn btn-primary">Get early access</a>
+      <a href="#wrapped" class="btn btn-ghost">See a sample Wrapped</a>
+    </div>
+
+    <div class="card">
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" aria-selected="true" data-tab="agent">Ask your agent</button>
+        <button class="tab" role="tab" aria-selected="false" data-tab="cli">Terminal (at beta launch)</button>
+      </div>
+      <div class="card-body">
+        <div class="cmd">
+          <pre id="cmd"></pre>
+          <button class="copy" id="copy">Copy</button>
+        </div>
+        <p class="hint" id="hint"></p>
+      </div>
+    </div>
+  </header>
+
+  <section class="section" id="wrapped">
+    <h2>Your AI Coding Wrapped</h2>
+    <p class="section-sub">A shareable snapshot of how you build: just a few metrics anyone can check. No vanity scores, no black-box ranking.</p>
+    <div class="wrapped">
+      <span class="sample">SAMPLE</span>
+      <div class="wrapped-title">credify wrapped · 2026</div>
+      <div class="wrapped-name">@your-handle</div>
+      <div class="stats">
+        <div class="stat"><div class="stat-val">412</div><div class="stat-lbl">PRs merged</div></div>
+        <div class="stat"><div class="stat-val">44%</div><div class="stat-lbl">AI-assisted commits</div></div>
+        <div class="stat"><div class="stat-val">0.62</div><div class="stat-lbl">Test-to-code ratio</div></div>
+        <div class="stat"><div class="stat-val">0.8%</div><div class="stat-lbl">14-day revert rate</div></div>
+      </div>
+      <div class="stack">
+        <span class="chip">TypeScript</span><span class="chip">Go</span><span class="chip">Postgres</span>
+        <span class="chip">Terraform</span><span class="chip">Claude Code</span><span class="chip">OpenCode</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="privacy">
+    <h2>No code leaves your machine</h2>
+    <p class="section-sub">The collector is open source, so you can audit it. Every scan writes a readable JSON file you review before anything is shared.</p>
+    <div class="grid-2">
+      <div class="box">
+        <h3 class="red">Stays local</h3>
+        <ul>
+          <li>✕ Source code and diffs</li>
+          <li>✕ Repo names, file paths, symbol names</li>
+          <li>✕ Agent prompts, secrets, env vars</li>
+          <li>✕ Employer or client names (unless you add them)</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3 class="grn">Shared only if you publish</h3>
+        <ul>
+          <li>✓ Counts: merged PRs, commits, reverts</li>
+          <li>✓ Ratios: tests vs. code, AI-assisted share</li>
+          <li>✓ Languages and tools you use</li>
+          <li>✓ Signatures from peers you invite</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="roadmap">
+    <h2>Where this is going</h2>
+    <p class="section-sub">We start with something useful to you on day one. Credibility you can take to your next job comes after.</p>
+    <div class="steps">
+      <div class="step"><div class="step-n now">01 · beta</div><div class="step-t">Your Wrapped</div><p>Local scan, private dashboard, optional shareable card.</p></div>
+      <div class="step"><div class="step-n">02 · next</div><div class="step-t">Peer co-signs</div><p>Teammates verified by their work email vouch for what you shipped.</p></div>
+      <div class="step"><div class="step-n">03 · later</div><div class="step-t">Credibility that travels</div><p>Show verified work to a new team instead of starting from zero.</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>FAQ</h2>
+    <details><summary>Is it legal to run on my employer's repos?</summary>
+      <p>Credify never reads code into anything it shares. It only counts things locally. Still, check your employment agreement, and you choose exactly which repos to include.</p></details>
+    <details><summary>Can't people fake the numbers?</summary>
+      <p>Local stats alone can be faked, which is why we treat them as your personal insight. Credibility comes from peer and CI signatures, which arrive in phase 2.</p></details>
+    <details><summary>Can my coding agent install it for me?</summary>
+      <p>Your agent can read <a href="/llms.txt">llms.txt</a> and prepare the command. You run it yourself. We don't want tools that install telemetry without a human.</p></details>
+    <details><summary>What does it cost?</summary>
+      <p>Free for engineers. Companies will pay later to find and verify talent.</p></details>
+  </section>
+
+  <section class="section waitlist" id="beta">
+    <h2>Join the private beta</h2>
+    <p class="section-sub">We're onboarding open-source maintainers, fractional engineers and heavy AI-agent users first.</p>
+    <iframe class="airtable-embed" src="https://airtable.com/embed/app5xrakkyjlqMudb/shrnUR28R8ynGtdqQ?backgroundColor=green" frameborder="0" title="Credify beta signup"></iframe>
+  </section>
+
+  <footer>
+    <span>© 2026 Credify · MIT-licensed collector</span>
+    <span><a href="https://github.com/LeeU1911/credify">GitHub</a> · <a href="/llms.txt">llms.txt</a></span>
+  </footer>
+</div>
+
+<script>
+  const tabs = {
+    agent: {
+      text: "Read https://credify.dev/llms.txt and explain what Credify's local scan would collect from my repos and coding-agent logs. Show me the exact command to run, but don't run or install anything yourself.",
+      hint: "Paste into Claude Code, Cursor, OpenCode or Codex. Your agent explains it; you stay in control."
+    },
+    cli: {
+      text: "npx @credify/cli scan --dry-run",
+      hint: "Available when the beta opens. Join the waitlist below to get the release first."
+    }
+  };
+  let active = "agent";
+  const cmd = document.getElementById("cmd");
+  const hint = document.getElementById("hint");
+  const copy = document.getElementById("copy");
+  function render() { cmd.textContent = tabs[active].text; hint.textContent = tabs[active].hint; }
+  document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => {
+    active = t.dataset.tab;
+    document.querySelectorAll(".tab").forEach(x => x.setAttribute("aria-selected", x === t ? "true" : "false"));
+    render();
+  }));
+  copy.addEventListener("click", () => {
+    navigator.clipboard?.writeText(tabs[active].text).catch(() => {});
+    copy.textContent = "Copied!"; copy.classList.add("ok");
+    setTimeout(() => { copy.textContent = "Copy"; copy.classList.remove("ok"); }, 1400);
+  });
+  render();
+</script>
 </body>
 </html>
